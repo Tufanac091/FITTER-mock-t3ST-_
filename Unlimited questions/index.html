@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitter Mock Test</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🛠️ Fitter Trade Mock Test</h1>
+
+    <select id="subjectSelect">
+      <option value="fitter">Fitter Theory</option>
+      <option value="employability">Employability Skills</option>
+      <option value="drawing">Engineering Drawing</option>
+      <option value="science">Workshop Calculation & Science</option>
+    </select>
+
+    <div id="quiz-container">
+      <div id="question-box">
+        <p id="question-text"></p>
+        <div id="options"></div>
+      </div>
+    </div>
+
+    <div id="feedback-box" style="display:none;">
+      <h2>✅ Quiz Complete!</h2>
+      <p id="score-text"></p>
+      <button onclick="location.reload()">पुनः शुरू करें</button>
+    </div>
+  </div>
+
+  <script src="js/fitter.js"></script>
+  <script src="js/employability.js"></script>
+  <script src="js/drawing.js"></script>
+  <script src="js/science.js"></script>
+  <script>
+    let currentSubject = "fitter";
+    let currentQuestion = 0;
+    let score = 0;
+    let quizData = window.questions;
+
+    const questionText = document.getElementById("question-text");
+    const optionsDiv = document.getElementById("options");
+    const feedbackBox = document.getElementById("feedback-box");
+    const scoreText = document.getElementById("score-text");
+    const quizContainer = document.getElementById("quiz-container");
+    const subjectSelect = document.getElementById("subjectSelect");
+
+    const loadQuestion = () => {
+      const q = quizData[currentQuestion];
+      questionText.textContent = `${currentQuestion + 1}. ${q.question}`;
+      optionsDiv.innerHTML = "";
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.className = "option-btn";
+        btn.onclick = () => checkAnswer(i, btn, q.answer);
+        optionsDiv.appendChild(btn);
+      });
+    };
+
+    const checkAnswer = (selected, btn, correct) => {
+      const allButtons = document.querySelectorAll(".option-btn");
+      allButtons.forEach(b => b.disabled = true);
+
+      if (selected === correct) {
+        btn.classList.add("correct");
+        score++;
+      } else {
+        btn.classList.add("wrong");
+        navigator.vibrate(300);
+        allButtons[correct].classList.add("correct");
+      }
+
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+          loadQuestion();
+        } else {
+          quizContainer.style.display = "none";
+          feedbackBox.style.display = "block";
+          scoreText.textContent = `आपने ${quizData.length} में से ${score} सही किए! 🎯`;
+        }
+      }, 1000);
+    };
+
+    subjectSelect.addEventListener("change", () => {
+      currentSubject = subjectSelect.value;
+      currentQuestion = 0;
+      score = 0;
+      quizData = window[currentSubject === "fitter" ? "questions" :
+                 currentSubject === "employability" ? "questions" :
+                 currentSubject === "drawing" ? "questions" :
+                 "questions"];
+      location.reload();
+    });
+
+    // First Load
+    quizData = window.questions;
+    loadQuestion();
+  </script>
+</body>
+    </html>
